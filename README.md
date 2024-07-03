@@ -34,7 +34,8 @@ Use this checklist and you can make sure all tests are consistent
 - [ ] Set laptop's screen brightness to 75% (on Mac, you can ask Siri "Set screen brightness to 75% for an accurate setting)
 - [ ] Turn off auto turn off screen on battery power
 - [ ] Connect your laptop to Wifi network
-- [ ] Leave battery saver mode on if your laptop have it
+- [ ] Leave battery saver mode on if your laptop have it, set battery saver on at 20%
+- [ ] Turn lower screen brightness on low battery off
 - [ ] Charge your laptop to 100% battery
 
 # How to run
