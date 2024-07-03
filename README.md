@@ -28,6 +28,15 @@ There will be scrolling and mouse moving when running the test.
 
 In the future, text input will be added to better resemble how a normal user would use an Office app.
 
+# Before you run any test, check all boxes in this checklist
+
+Use this checklist and you can make sure all tests are consistent
+- [] Set laptop's screen brightness to 75% (on Mac, you can ask Siri "Set screen brightness to 75% for an accurate setting)
+- [] Turn off auto turn off screen on battery power
+- [] Connect your laptop to Wifi network
+- [] Leave battery saver mode on if your laptop have it
+- [] Charge your laptop to 100% battery
+
 # How to run
 
 ## Installation
