@@ -1,10 +1,9 @@
 import pyautogui
-import time
-import webbrowser
 import os
 import platform
 from utils.battery_utils import get_battery_level
 from utils import start_file, close_window
+from utils import custom_scroll
 
 text_to_write = """
     Activity Requirements
@@ -37,24 +36,9 @@ def run_office_test():
         pyautogui.moveTo(screenWidth/2, screenHeight/2, duration=1)
         pyautogui.click(clicks=1)
 
-        pyautogui.scroll(-10)
-        pyautogui.scroll(-10)
-        pyautogui.scroll(-10)
-        pyautogui.scroll(-10)
-        pyautogui.scroll(-10)
-        pyautogui.scroll(-10)
-        pyautogui.scroll(-10)
-        pyautogui.scroll(-10)
-        pyautogui.scroll(-10)
-        pyautogui.scroll(-10)
+        custom_scroll(times=10, direction="down")
 
-        pyautogui.scroll(10)
-        pyautogui.scroll(10)
-        pyautogui.scroll(10)
-        pyautogui.scroll(10)
-        pyautogui.scroll(10)
-        pyautogui.scroll(10)
-        pyautogui.scroll(10)
+        custom_scroll(times=10, direction="up")
 
         get_battery_level()
 

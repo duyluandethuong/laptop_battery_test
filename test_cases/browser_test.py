@@ -4,6 +4,7 @@ import webbrowser
 import os
 import platform
 from utils.battery_utils import get_battery_level
+from utils import custom_scroll
 
 def run_browser_test():
 
@@ -45,24 +46,9 @@ def run_browser_test():
         pyautogui.moveTo(screenWidth/2, screenHeight/2, duration=1)
         pyautogui.click(clicks=1)
 
-        pyautogui.scroll(-10)
-        pyautogui.scroll(-10)
-        pyautogui.scroll(-10)
-        pyautogui.scroll(-10)
-        pyautogui.scroll(-10)
-        pyautogui.scroll(-10)
-        pyautogui.scroll(-10)
-        pyautogui.scroll(-10)
-        pyautogui.scroll(-10)
-        pyautogui.scroll(-10)
+        custom_scroll(times=10, direction="down")
 
-        pyautogui.scroll(10)
-        pyautogui.scroll(10)
-        pyautogui.scroll(10)
-        pyautogui.scroll(10)
-        pyautogui.scroll(10)
-        pyautogui.scroll(10)
-        pyautogui.scroll(10)
+        custom_scroll(times=10, direction="up")
 
     # Close the browser:
     if is_windows:
