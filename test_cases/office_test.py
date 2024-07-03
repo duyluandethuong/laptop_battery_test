@@ -21,6 +21,7 @@ def run_office_test():
         os.path.join(base_path, 'word_test_1.docx'),
         os.path.join(base_path, 'word_test_2.docx'),
         os.path.join(base_path, 'word_test_3.docx'),
+        os.path.join(base_path, 'excel_test_1.xlsx'),
     ]
 
     os_name = os.name
@@ -34,12 +35,14 @@ def run_office_test():
 
     for path in file_paths:
         get_battery_level()
-        
+
         start_file(path)
         pyautogui.moveTo(screenWidth/2, screenHeight/2, duration=1)
         pyautogui.click(clicks=1)
 
         custom_scroll(times=10, direction="down")
+
+        time.sleep(10)
 
         custom_scroll(times=10, direction="up")
 
@@ -50,3 +53,5 @@ def run_office_test():
         get_battery_level()
 
         close_window()
+
+        time.sleep(2)

@@ -49,6 +49,8 @@ def run_browser_test():
 
         custom_scroll(times=10, direction="down")
 
+        time.sleep(10)
+
         custom_scroll(times=10, direction="up")
 
         time.sleep(10)
