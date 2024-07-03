@@ -18,7 +18,7 @@ The author has tested this program on several laptops running a wide variety of 
 - A default browser: Edge, Safari, or any default browser of your choice. Edge and Safari are recommended since they are default browser for most Windows and Mac machine
 - Microsoft Office: Word, Excel, PowerPoint
 
-# List of tasks
+# Tasks to perform
 
 The program will run infinite loop of the following tasks
 1. Open 5 websites using default browser
@@ -38,6 +38,8 @@ In the future, text input will be added to better resemble how a normal user wou
 4. Open Command Prompt (cmd) and navigate to your extracted folder (e.g: `cd C:\Users\Duyluan\Downloads\laptop_battery_test`)
 
 ## Run the program
+
+**Always navigate to project folder first**
 
 ### macOS:
 
