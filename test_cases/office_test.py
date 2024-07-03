@@ -15,12 +15,12 @@ text_to_write = """
 """
 
 def run_office_test():
-    base_path = 'test_files/office'
+    base_path = os.path.join('test_files', 'office')
 
     file_paths = [
-        f'{base_path}/word_test_1.docx',
-        f'{base_path}/word_test_2.docx',
-        f'{base_path}/word_test_3.docx',
+        os.path.join(base_path, 'word_test_1.docx'),
+        os.path.join(base_path, 'word_test_2.docx'),
+        os.path.join(base_path, 'word_test_3.docx'),
     ]
 
     os_name = os.name
