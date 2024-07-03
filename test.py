@@ -30,5 +30,4 @@ is_macos = False
 while True:
     run_browser_test()
     run_office_test()
-    logging.info('Finish 1 loop test. moving on')
     get_battery_level()
