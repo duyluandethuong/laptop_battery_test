@@ -4,13 +4,11 @@ import logging
 
 
 def get_battery_level():
-    current_time = time.time()
-
     logging.basicConfig(
         filename=f'logfilename.log',
         encoding='utf-8',
         level=logging.INFO,
-        format='%(asctime)s: %(message)s'
+        format='%(asctime)s | %(message)s'
     )
 
     battery = psutil.sensors_battery()

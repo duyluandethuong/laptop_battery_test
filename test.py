@@ -13,7 +13,7 @@ logging.basicConfig(
     filename=f'logfilename.log',
     encoding='utf-8',
     level=logging.INFO,
-    format='%(asctime)s: %(message)s'
+    format='%(asctime)s | %(message)s'
 )
 
 logging.info('====================== Starting new test... ====================')
@@ -30,5 +30,5 @@ is_macos = False
 while True:
     run_browser_test()
     run_office_test()
-    logging.info('Finish 1 loop test')
+    logging.info('Finish 1 loop test. moving on')
     get_battery_level()
