@@ -16,7 +16,7 @@ logging.basicConfig(
     format='%(asctime)s: %(message)s'
 )
 
-logging.info('====================== Starting test... ====================')
+logging.info('====================== Starting new test... ====================')
 
 os_name = os.name
 platform_name = platform.system()
@@ -27,9 +27,8 @@ get_battery_level()
 is_windows = True
 is_macos = False
 
-run_browser_test()
-run_office_test()
-
-get_battery_level()
-
-logging.info('Ending test...')
+while True:
+    run_browser_test()
+    run_office_test()
+    logging.info('Finish 1 loop test')
+    get_battery_level()
