@@ -16,7 +16,7 @@ logging.basicConfig(
     format='%(asctime)s: %(message)s'
 )
 
-logging.info('Starting test...')
+logging.info('====================== Starting test... ====================')
 
 os_name = os.name
 platform_name = platform.system()

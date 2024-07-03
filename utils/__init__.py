@@ -38,7 +38,7 @@ def custom_scroll(times=1, direction="down"):
     is_windows, is_macos = detect_platform()
 
     if is_windows:
-        scrolling_distance = 50
+        scrolling_distance = 150
 
     if direction == 'down':
         scrolling_distance = scrolling_distance * -1

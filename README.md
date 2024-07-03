@@ -11,7 +11,7 @@ Run in cmd, do not run on PowerShell
 
 python -m venv battery_test_env
 battery_test_env\Scripts\activate.bat
-pip install --upgrade pip
+python.exe -m pip install --upgrade pip
 
 Install dependencies
 
