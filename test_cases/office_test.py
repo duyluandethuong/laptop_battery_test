@@ -4,6 +4,7 @@ import platform
 from utils.battery_utils import get_battery_level
 from utils import start_file, close_window
 from utils import custom_scroll
+import time
 
 text_to_write = """
     Activity Requirements
@@ -39,6 +40,10 @@ def run_office_test():
         custom_scroll(times=10, direction="down")
 
         custom_scroll(times=10, direction="up")
+
+        time.sleep(10)
+
+        custom_scroll(times=10, direction="down")
 
         get_battery_level()
 

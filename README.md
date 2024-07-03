@@ -1,31 +1,22 @@
 
 macOS:
 
-python3 -m venv battery_test
-source battery_test/bin/activate
+python3 -m venv battery_test_env
+source battery_test_env/bin/activate
+pip3 install --upgrade pip
 
 Windows:
 
 Run in cmd, do not run on PowerShell
 
-battery_test\Scripts\activate.bat
+python -m venv battery_test_env
+battery_test_env\Scripts\activate.bat
+pip install --upgrade pip
 
 Install dependencies
 
-battery_test/bin/pip install -r requirements.txt
+battery_test_env/bin/pip install -r requirements.txt
 
-<<<<<<< HEAD
-PowerShell note
-
-Open PowerShell as an Administrator
-Type Set-ExecutionPolicy Unrestricted
-Press Enter
-Type A
-Run the PowerShell script
-Once finished, type Set-ExecutionPolicy Restricted
-Press Enter
-Type Exit
-=======
 Run:
 
 macOS:
@@ -37,4 +28,3 @@ Windows:
 
 pip install -r requirements.txt
 python -m test
->>>>>>> 15e1a4f6cd38295f841239b0d28e0e9694b42a06
