@@ -32,3 +32,18 @@ def close_window():
 
     if is_macos:
         pyautogui.hotkey('command', 'q')
+
+def custom_scroll(times=1, direction="down"):
+    scrolling_distance = 10
+    is_windows, is_macos = detect_platform()
+
+    if is_windows:
+        scrolling_distance = 50
+
+    if direction == 'down':
+        scrolling_distance = scrolling_distance * -1
+
+    scroll_time = 1
+    while scroll_time <= times:
+        pyautogui.scroll(scrolling_distance)
+        scroll_time += 1
