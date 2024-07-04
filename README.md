@@ -100,3 +100,9 @@ python -m test
 
 Pull the repo, then follow the instruction above. You should start checking the `test.py` file, it is the entry file for the whole script.
 I'm thinking changing it to a __main__ script
+
+# Trouble shooting, Q&A:
+
+**Q: Cannot run Python in command prompt?**
+A: If you open the command prompt before you install Python, the `python` command has not been registered to PATH. Simply close command prompt or open a new tab will solve the issue.
+

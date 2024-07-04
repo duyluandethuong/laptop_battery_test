@@ -9,6 +9,9 @@ from utils.battery_utils import get_battery_level
 from test_cases.office_test import run_office_test
 from test_cases.browser_test import run_browser_test
 
+# Disable fail safe mechanism of Pyautogui
+pyautogui.FAILSAFE = False
+
 logging.basicConfig(
     filename=f'logfilename.log',
     encoding='utf-8',
