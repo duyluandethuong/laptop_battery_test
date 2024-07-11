@@ -90,6 +90,26 @@ battery_test_env\Scripts\activate.bat
 python -m test
 ```
 
+# How to calculate time difference
+
+After the laptop is shutdown due to low battery, charge your laptop and power it on. Go to this project folder, you will find a file called `logfilename.log`. It records the entire testing duration. When you open the file, you will see the timestamps that have been logged by the script.
+
+To calculate the time difference between the start and end time:
+
+**macOS**:
+
+```sh
+python3 datetime_calculator.py "your start timestamp" "your end timestamp"
+```
+
+**Windows**:
+
+```sh
+python datetime_calculator.py "your start timestamp" "your end timestamp"
+```
+
+In the future, I will make it easier to see the time difference.
+
 # Next steps:
 - Package the script into a single executable files
 - Add more tests to better simulate real world office use

@@ -14,10 +14,10 @@ start_time = sys.argv[1]
 end_time = sys.argv[2]
 
 # convert time string to datetime
-t1 = datetime.strptime(start_time, "%Y-%m-%d-%H:%M:%S")
+t1 = datetime.strptime(start_time, "%Y-%m-%d %H:%M:%S")
 print('Start time:', t1.time())
 
-t2 = datetime.strptime(end_time, "%Y-%m-%d-%H:%M:%S")
+t2 = datetime.strptime(end_time, "%Y-%m-%d %H:%M:%S")
 print('End time:', t2.time())
 
 # get difference
