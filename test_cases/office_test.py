@@ -34,7 +34,6 @@ def run_office_test():
     print(f'Screen size: {screenWidth}, {screenHeight}')
 
     for path in file_paths:
-        get_battery_level()
 
         start_file(path)
         pyautogui.moveTo(screenWidth/2, screenHeight/2, duration=1)
@@ -49,8 +48,6 @@ def run_office_test():
         time.sleep(10)
 
         custom_scroll(times=10, direction="down")
-
-        get_battery_level()
 
         close_window()
 

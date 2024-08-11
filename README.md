@@ -90,6 +90,14 @@ battery_test_env\Scripts\activate.bat
 python -m test
 ```
 
+# Disable YouTube test
+
+By default, the script will run with YouTube playback test included, if you want to disable the YouTube playback, run
+
+```sh
+python -m test 1
+```
+
 # How to calculate time difference
 
 After the laptop is shutdown due to low battery, charge your laptop and power it on. Go to this project folder, you will find a file called `logfilename.log`. It records the entire testing duration. When you open the file, you will see the timestamps that have been logged by the script.

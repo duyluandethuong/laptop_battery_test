@@ -39,7 +39,6 @@ def run_browser_test():
     ]
 
     for url in urls:
-        get_battery_level()
         webbrowser.open(url)
 
         time.sleep(2)
@@ -56,7 +55,6 @@ def run_browser_test():
         time.sleep(10)
 
         custom_scroll(times=10, direction="down")
-        get_battery_level()
 
     # Close the browser:
     if is_windows:
