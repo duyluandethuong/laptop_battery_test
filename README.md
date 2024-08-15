@@ -34,7 +34,7 @@ Use this checklist and you can make sure all tests are consistent
 - [ ] Set laptop's screen brightness to 75% (on Mac, you can ask Siri "Set screen brightness to 75% for an accurate setting)
 - [ ] Turn off auto turn off screen on battery power
 - [ ] Connect your laptop to Wifi network
-- [ ] Leave battery saver mode on if your laptop have it, set battery saver on at 20%
+- [ ] Leave battery saver mode on if your laptop have it, set battery saver on at 30% (30% is the default settings for Windows in recent updates)
 - [ ] Turn lower screen brightness on low battery off
 - [ ] Charge your laptop to 100% battery
 
@@ -119,10 +119,7 @@ python datetime_calculator.py "your start timestamp" "your end timestamp"
 In the future, I will make it easier to see the time difference.
 
 # Next steps:
-- Package the script into a single executable files
-- Add more tests to better simulate real world office use
-- Change the test files into a larger one
-- Add some test on Youtube video playback (perhaps?)
+- Build a system to store the log file and allow users to search for laptop's battery test result
 
 # How to develop:
 
