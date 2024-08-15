@@ -23,6 +23,7 @@ The author has tested this program on several laptops running a wide variety of 
 The program will run infinite loop of the following tasks
 1. Open 5 websites using default browser
 2. Open 3 Word files and 1 Excel files
+3. Play youtube videos
 
 There will be scrolling and mouse moving when running the test.
 
