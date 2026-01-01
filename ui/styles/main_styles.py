@@ -24,8 +24,8 @@ MAIN_STYLESHEET = """
         color: #00ff88;
         font-size: 56px;
         font-weight: bold;
-        font-family: 'SF Mono', 'Menlo', monospace;
         padding: 20px;
+        letter-spacing: 2px;
     }
     
     QLabel#batteryText {
@@ -163,9 +163,33 @@ MAIN_STYLESHEET = """
         border: 1px solid rgba(255, 255, 255, 0.1);
         border-radius: 8px;
         color: #00ff88;
-        font-family: 'SF Mono', 'Menlo', 'Consolas', monospace;
         font-size: 12px;
         padding: 12px;
+    }
+    
+    QScrollBar:vertical {
+        background: rgba(0, 0, 0, 0.2);
+        width: 12px;
+        border-radius: 6px;
+        margin: 0px;
+    }
+    
+    QScrollBar::handle:vertical {
+        background: rgba(255, 255, 255, 0.3);
+        border-radius: 6px;
+        min-height: 20px;
+    }
+    
+    QScrollBar::handle:vertical:hover {
+        background: rgba(255, 255, 255, 0.4);
+    }
+    
+    QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {
+        height: 0px;
+    }
+    
+    QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {
+        background: none;
     }
     
     QLabel#logLocationLabel {

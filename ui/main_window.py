@@ -3,6 +3,7 @@ Main Window for Battery Test Application
 """
 import sys
 import os
+import re
 import logging
 from datetime import datetime
 from PyQt6.QtWidgets import (
@@ -31,6 +32,24 @@ class LogHandler(logging.Handler):
         self.signal.emit(msg)
 
 
+class ElapsedTimeFilter(logging.Filter):
+    """Filter to inject elapsed time into log records."""
+    
+    def __init__(self, main_window):
+        super().__init__()
+        self.main_window = main_window
+    
+    def filter(self, record):
+        if hasattr(self.main_window, 'elapsed_seconds'):
+            s = self.main_window.elapsed_seconds
+            h, r = divmod(s, 3600)
+            m, s = divmod(r, 60)
+            record.elapsed = f"[{h:02d}:{m:02d}:{s:02d}]"
+        else:
+            record.elapsed = "[00:00:00]"
+        return True
+
+
 class MainWindow(QMainWindow):
     """Main application window."""
     
@@ -56,6 +75,7 @@ class MainWindow(QMainWindow):
     def _setup_ui(self):
         """Setup the user interface."""
         self.setWindowTitle("Laptop Battery Test")
+        self.resize(1024, 768)
         self.setMinimumSize(700, 550)
         
         # Central widget
@@ -181,21 +201,25 @@ class MainWindow(QMainWindow):
         log_layout = QVBoxLayout(log_frame)
         log_layout.setContentsMargins(16, 16, 16, 16)
         
+        # Log title and clear button on same row
+        log_header_layout = QHBoxLayout()
         log_title = QLabel("Log")
         log_title.setObjectName("sectionTitle")
-        log_layout.addWidget(log_title)
+        log_header_layout.addWidget(log_title)
+        log_header_layout.addStretch()
+        
+        clear_button = QPushButton("Clear Log")
+        clear_button.setObjectName("clearButton")
+        clear_button.clicked.connect(self._clear_log)
+        log_header_layout.addWidget(clear_button)
+        
+        log_layout.addLayout(log_header_layout)
         
         self.log_text = QTextEdit()
         self.log_text.setReadOnly(True)
         self.log_text.setObjectName("logText")
         self.log_text.setMinimumHeight(180)
         log_layout.addWidget(self.log_text)
-        
-        # Clear log button
-        clear_button = QPushButton("Clear Log")
-        clear_button.setObjectName("clearButton")
-        clear_button.clicked.connect(self._clear_log)
-        log_layout.addWidget(clear_button)
         
         main_layout.addWidget(log_frame, stretch=1)
     
@@ -214,6 +238,10 @@ class MainWindow(QMainWindow):
         """Setup logging to capture logs in the UI."""
         self.log_signal.connect(self._append_log)
         self.log_handler = LogHandler(self.log_signal)
+        
+        # Add filter to inject elapsed time
+        self.log_handler.addFilter(ElapsedTimeFilter(self))
+        self.log_handler.setFormatter(logging.Formatter('%(elapsed)s %(asctime)s | %(message)s'))
         
         # Get root logger and add our handler
         root_logger = logging.getLogger()
@@ -252,8 +280,16 @@ class MainWindow(QMainWindow):
             self.log_path_edit.setText(file_path)
             self._append_log(f"📁 Log location changed to: {file_path}")
     
+    def _is_worker_running(self):
+        """Check if worker thread is actually running."""
+        return self.worker_thread is not None and self.worker_thread.isRunning()
+    
     def _on_start(self):
         """Handle start button click."""
+        if self._is_worker_running():
+            self._append_log("⚠️ Waiting for previous test to finish cleanup...")
+            return
+
         if self.is_paused:
             # Resume
             self._resume_test()
@@ -262,10 +298,12 @@ class MainWindow(QMainWindow):
         # Start new test
         self.start_time = datetime.now()
         self.elapsed_seconds = 0
+        self.timer_label.setText("00:00:00")
         
         # Configure file logging with selected path
         file_handler = logging.FileHandler(self.log_path, encoding='utf-8')
-        file_handler.setFormatter(logging.Formatter('%(asctime)s | %(message)s'))
+        file_handler.addFilter(ElapsedTimeFilter(self))
+        file_handler.setFormatter(logging.Formatter('%(elapsed)s %(asctime)s | %(message)s'))
         logging.getLogger().addHandler(file_handler)
         
         # Update UI state
@@ -319,22 +357,28 @@ class MainWindow(QMainWindow):
     
     def _on_stop(self):
         """Handle stop button click."""
-        self._stop_test()
-        self._append_log("⏹ Test stopped by user")
-    
-    def _stop_test(self):
-        """Stop the running test."""
+        self._append_log("⏹ Stopping test (waiting for current task)...")
         self.elapsed_timer.stop()
         
         if self.worker:
             self.worker.stop()
+            
+        self.stop_button.setEnabled(False)
+        self.pause_button.setEnabled(False)
+        self._set_status("Stopping...", "#ff9800")
+    
+    def _cleanup_test(self):
+        """Clean up thread and reset UI."""
+        self.elapsed_timer.stop()
         
+        # Cleanup thread safe
         if self.worker_thread:
-            self.worker_thread.quit()
-            self.worker_thread.wait(3000)
+            if self.worker_thread.isRunning():
+                self.worker_thread.quit()
+                self.worker_thread.wait(2000) # Wait up to 2s
+            self.worker_thread = None
         
         self.worker = None
-        self.worker_thread = None
         self.is_paused = False
         
         # Reset UI state
@@ -344,11 +388,21 @@ class MainWindow(QMainWindow):
         self.stop_button.setEnabled(False)
         self.youtube_checkbox.setEnabled(True)
         self._set_status("Stopped", "#f44336")
-    
+
     def _on_worker_finished(self):
         """Handle worker thread completion."""
-        self._stop_test()
-        self._append_log("✅ Test completed")
+        self._cleanup_test()
+        self._append_log("✅ Test finished")
+        
+    def _stop_test(self):
+        """Legacy method needed for closeEvent - force stop."""
+        self.elapsed_timer.stop()
+        if self.worker:
+            self.worker.stop()
+        if self.worker_thread:
+            self.worker_thread.quit()
+            self.worker_thread.wait(1000)
+        self._cleanup_test()
     
     def _update_elapsed_time(self):
         """Update the elapsed time display."""
@@ -387,6 +441,15 @@ class MainWindow(QMainWindow):
     
     def _append_log(self, message):
         """Append a message to the log."""
+        # Check if message already starts with elapsed time format [HH:MM:SS]
+        if not re.match(r'^\[\d{2}:\d{2}:\d{2}\]', message):
+            # Calculate current elapsed time string
+            hours = self.elapsed_seconds // 3600
+            minutes = (self.elapsed_seconds % 3600) // 60
+            seconds = self.elapsed_seconds % 60
+            elapsed_str = f"[{hours:02d}:{minutes:02d}:{seconds:02d}]"
+            message = f"{elapsed_str} {message}"
+        
         self.log_text.append(message)
         # Auto-scroll to bottom
         cursor = self.log_text.textCursor()

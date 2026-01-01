@@ -19,7 +19,16 @@ def get_log_path():
     # When bundled, use the user's home directory
     if getattr(sys, 'frozen', False):
         # Running as bundled app
-        log_dir = os.path.expanduser('~/Library/Logs/LaptopBatteryTest')
+        if sys.platform == 'darwin':
+            # macOS
+            log_dir = os.path.expanduser('~/Library/Logs/LaptopBatteryTest')
+        elif sys.platform == 'win32':
+            # Windows
+            log_dir = os.path.join(os.getenv('LOCALAPPDATA'), 'LaptopBatteryTest', 'Logs')
+        else:
+            # Linux/Other
+            log_dir = os.path.expanduser('~/.local/share/LaptopBatteryTest/logs')
+        
         os.makedirs(log_dir, exist_ok=True)
         return os.path.join(log_dir, 'logfilename.log')
     else:
