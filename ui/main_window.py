@@ -12,7 +12,7 @@ from PyQt6.QtWidgets import (
     QLineEdit, QFileDialog
 )
 from PyQt6.QtCore import Qt, QTimer, pyqtSignal, QThread
-from PyQt6.QtGui import QFont, QColor, QPalette, QTextCursor
+from PyQt6.QtGui import QFont, QColor, QPalette, QTextCursor, QIcon
 
 from ui.worker import BatteryTestWorker
 from ui.checklist_dialog import ChecklistDialog
@@ -75,6 +75,17 @@ class MainWindow(QMainWindow):
     def _setup_ui(self):
         """Setup the user interface."""
         self.setWindowTitle("Laptop Battery Test")
+        
+        # Set window icon
+        icon_name = "app_icon.ico" if os.name == 'nt' else "app_icon.png"
+        icon_path = os.path.join("icons", icon_name)
+        
+        if hasattr(sys, '_MEIPASS'):
+            icon_path = os.path.join(sys._MEIPASS, "icons", icon_name)
+            
+        if os.path.exists(icon_path):
+            self.setWindowIcon(QIcon(icon_path))
+
         self.resize(1024, 768)
         self.setMinimumSize(700, 550)
         

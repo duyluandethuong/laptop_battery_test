@@ -24,6 +24,8 @@ a = Analysis(
         ('test_cases', 'test_cases'),
         # Include utils
         ('utils', 'utils'),
+        # Include icons
+        ('icons', 'icons'),
     ],
     hiddenimports=[
         'PyQt6',
@@ -64,6 +66,7 @@ exe = EXE(
     [],
     exclude_binaries=True,
     name='LaptopBatteryTest',
+    icon='icons/app_icon.ico',
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
