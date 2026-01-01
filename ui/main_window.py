@@ -2,11 +2,13 @@
 Main Window for Battery Test Application
 """
 import sys
+import os
 import logging
 from datetime import datetime
 from PyQt6.QtWidgets import (
     QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
-    QPushButton, QLabel, QTextEdit, QFrame, QCheckBox
+    QPushButton, QLabel, QTextEdit, QFrame, QCheckBox,
+    QLineEdit, QFileDialog
 )
 from PyQt6.QtCore import Qt, QTimer, pyqtSignal, QThread
 from PyQt6.QtGui import QFont, QColor, QPalette, QTextCursor
@@ -41,6 +43,10 @@ class MainWindow(QMainWindow):
         self.start_time = None
         self.elapsed_seconds = 0
         self.is_paused = False
+        
+        # Default log file with timestamp
+        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+        self.log_path = os.path.join(os.path.expanduser('~'), f'battery_test_{timestamp}.log')
         
         self._setup_ui()
         self._setup_timer()
@@ -116,6 +122,24 @@ class MainWindow(QMainWindow):
         options_layout.addWidget(checklist_button)
         
         main_layout.addLayout(options_layout)
+        
+        # Log location section
+        log_location_layout = QHBoxLayout()
+        log_location_label = QLabel("Log file:")
+        log_location_label.setObjectName("logLocationLabel")
+        log_location_layout.addWidget(log_location_label)
+        
+        self.log_path_edit = QLineEdit(self.log_path)
+        self.log_path_edit.setObjectName("logPathEdit")
+        self.log_path_edit.setReadOnly(True)
+        log_location_layout.addWidget(self.log_path_edit, stretch=1)
+        
+        browse_button = QPushButton("Browse")
+        browse_button.setObjectName("browseButton")
+        browse_button.clicked.connect(self._browse_log_location)
+        log_location_layout.addWidget(browse_button)
+        
+        main_layout.addLayout(log_location_layout)
         
         # Control buttons
         button_layout = QHBoxLayout()
@@ -215,6 +239,19 @@ class MainWindow(QMainWindow):
         except Exception as e:
             self._append_log(f"❌ Office test failed: {str(e)}")
     
+    def _browse_log_location(self):
+        """Open file dialog to select log file location."""
+        file_path, _ = QFileDialog.getSaveFileName(
+            self,
+            "Select Log File Location",
+            self.log_path,
+            "Log Files (*.log);;All Files (*)"
+        )
+        if file_path:
+            self.log_path = file_path
+            self.log_path_edit.setText(file_path)
+            self._append_log(f"📁 Log location changed to: {file_path}")
+    
     def _on_start(self):
         """Handle start button click."""
         if self.is_paused:
@@ -225,6 +262,11 @@ class MainWindow(QMainWindow):
         # Start new test
         self.start_time = datetime.now()
         self.elapsed_seconds = 0
+        
+        # Configure file logging with selected path
+        file_handler = logging.FileHandler(self.log_path, encoding='utf-8')
+        file_handler.setFormatter(logging.Formatter('%(asctime)s | %(message)s'))
+        logging.getLogger().addHandler(file_handler)
         
         # Update UI state
         self.start_button.setEnabled(False)
@@ -248,7 +290,7 @@ class MainWindow(QMainWindow):
         
         self.worker_thread.start()
         
-        self._append_log("🚀 Test started!")
+        self._append_log(f"🚀 Test started! Logging to: {self.log_path}")
     
     def _on_pause(self):
         """Handle pause button click."""

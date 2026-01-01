@@ -16,8 +16,14 @@ a = Analysis(
     pathex=[str(project_dir)],
     binaries=[],
     datas=[
-        # Include test files if needed
+        # Include test files
         ('test_files', 'test_files'),
+        # Include UI modules
+        ('ui', 'ui'),
+        # Include test cases
+        ('test_cases', 'test_cases'),
+        # Include utils
+        ('utils', 'utils'),
     ],
     hiddenimports=[
         'PyQt6',
@@ -26,6 +32,19 @@ a = Analysis(
         'PyQt6.QtGui',
         'pyautogui',
         'psutil',
+        # App modules
+        'ui',
+        'ui.main_window',
+        'ui.worker',
+        'ui.checklist_dialog',
+        'ui.styles',
+        'ui.styles.main_styles',
+        'test_cases',
+        'test_cases.office_test',
+        'test_cases.browser_test',
+        'test_cases.youtube_test',
+        'utils',
+        'utils.battery_utils',
     ],
     hookspath=[],
     hooksconfig={},
@@ -73,7 +92,7 @@ if sys.platform == 'darwin':
     app = BUNDLE(
         coll,
         name='LaptopBatteryTest.app',
-        icon=None,  # Add icon path here if you have one: 'assets/icon.icns'
+        icon='icons/app_icon.icns',  # Add icon path here if you have one: 'assets/icon.icns'
         bundle_identifier='com.duyluan.laptopbatterytest',
         info_plist={
             'CFBundleName': 'Laptop Battery Test',

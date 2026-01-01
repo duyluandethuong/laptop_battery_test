@@ -60,7 +60,7 @@ MAIN_STYLESHEET = """
     
     QPushButton {
         background: rgba(255, 255, 255, 0.1);
-        border: 1px solid rgba(255, 255, 255, 0.2);
+        border: none;
         border-radius: 8px;
         color: #e8e8e8;
         font-size: 15px;
@@ -71,7 +71,6 @@ MAIN_STYLESHEET = """
     
     QPushButton:hover {
         background: rgba(255, 255, 255, 0.15);
-        border-color: rgba(255, 255, 255, 0.3);
     }
     
     QPushButton:pressed {
@@ -80,7 +79,6 @@ MAIN_STYLESHEET = """
     
     QPushButton:disabled {
         background: rgba(255, 255, 255, 0.03);
-        border-color: rgba(255, 255, 255, 0.05);
         color: #555;
     }
     
@@ -143,7 +141,7 @@ MAIN_STYLESHEET = """
     
     QPushButton#checklistButton {
         background: rgba(255, 255, 255, 0.1);
-        border: 1px solid rgba(255, 255, 255, 0.2);
+        border: none;
         border-radius: 8px;
         color: #e8e8e8;
         font-size: 13px;
@@ -154,7 +152,6 @@ MAIN_STYLESHEET = """
     
     QPushButton#checklistButton:hover {
         background: rgba(255, 255, 255, 0.15);
-        border-color: rgba(255, 255, 255, 0.3);
     }
     
     QCheckBox#optionCheckbox {
@@ -169,6 +166,34 @@ MAIN_STYLESHEET = """
         font-family: 'SF Mono', 'Menlo', 'Consolas', monospace;
         font-size: 12px;
         padding: 12px;
+    }
+    
+    QLabel#logLocationLabel {
+        color: #aaa;
+        font-size: 13px;
+    }
+    
+    QLineEdit#logPathEdit {
+        background: rgba(0, 0, 0, 0.2);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 6px;
+        color: #e8e8e8;
+        font-size: 12px;
+        padding: 8px 12px;
+    }
+    
+    QPushButton#browseButton {
+        background: rgba(255, 255, 255, 0.1);
+        border: none;
+        border-radius: 6px;
+        color: #e8e8e8;
+        font-size: 12px;
+        padding: 8px 16px;
+        min-width: 60px;
+    }
+    
+    QPushButton#browseButton:hover {
+        background: rgba(255, 255, 255, 0.15);
     }
 """
 
@@ -208,7 +233,7 @@ DIALOG_STYLESHEET = """
     
     QPushButton#secondaryButton {
         background: rgba(255, 255, 255, 0.1);
-        border: 1px solid rgba(255, 255, 255, 0.2);
+        border: none;
         border-radius: 8px;
         color: #e8e8e8;
         font-size: 14px;
@@ -219,6 +244,5 @@ DIALOG_STYLESHEET = """
     
     QPushButton#secondaryButton:hover {
         background: rgba(255, 255, 255, 0.15);
-        border-color: rgba(255, 255, 255, 0.3);
     }
 """
