@@ -1,0 +1,10 @@
+[project]
+name = "laptop-battery-test"
+version = "1.0.0"
+description = "A tool to simulate office-related tasks to test laptop battery life"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "pyautogui",
+    "psutil",
+]

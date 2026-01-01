@@ -46,52 +46,36 @@ Use this checklist and you can make sure all tests are consistent
 
 ## Installation
 
-1. Install Python https://www.python.org/downloads/
+1. Install `uv` (a fast Python package manager):
+   - **macOS/Linux**: `curl -LsSf https://astral.sh/uv/install.sh | sh`
+   - **Windows**: `powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"`
 2. Download this code by click on the Code (green button) > Download ZIP, or you can use `git clone` this repo to your machine.
 3. Unzip the ZIP file you have just download
-4. Open Command Prompt (cmd) and navigate to your extracted folder (e.g: `cd C:\Users\Duyluan\Downloads\laptop_battery_test`)
+4. Open Terminal (macOS) or Command Prompt (Windows) and navigate to your extracted folder (e.g: `cd C:\Users\Duyluan\Downloads\laptop_battery_test`)
 
 ## Run the program
 
 **Always navigate to project folder first**
 
-### macOS:
+### macOS / Linux:
 
-Open Terminal and run the following commands
-
-```sh
-python3 -m venv battery_test_env
-source battery_test_env/bin/activate
-pip3 install --upgrade pip
-pip3 install -r requirements.txt
-python3 -m test
-```
-
-**You only need to do it once, on the first time**. For the following runs, you only need to run these code
+Open Terminal and run the following command:
 
 ```sh
-source battery_test_env/bin/activate
-python3 -m test
+uv run python -m test
 ```
+
+That's it! `uv` will automatically create a virtual environment, install dependencies, and run the test.
 
 ### Windows:
 
-Note: You must run the following commands in Command Prompt (CMD), do not run on PowerShell
+Open Command Prompt (CMD) and run the following command:
 
 ```cmd
-python -m venv battery_test_env
-battery_test_env\Scripts\activate.bat
-python.exe -m pip install --upgrade pip
-pip install -r requirements.txt
-python -m test
+uv run python -m test
 ```
 
-**You only need to do it once, on the first time**. For the following runs, you only need to run these code
-
-```cmd
-battery_test_env\Scripts\activate.bat
-python -m test
-```
+That's it! `uv` will automatically create a virtual environment, install dependencies, and run the test.
 
 > [!NOTE]
 **Note for Windows ARM**: You may need to install C++ Builds Tools (especially on Windows ARM devices) if the error show when building wheels. Check the error message to see if you need to do so. Download [Visual Studio](https://visualstudio.microsoft.com/downloads/) and install **Desktop Development with C++**, then run the installation commands again.
