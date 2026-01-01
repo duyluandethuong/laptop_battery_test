@@ -31,6 +31,7 @@ MANIFEST
 #  before PyInstaller builds the exe, so as to inject date/other infos into it.
 *.manifest
 *.spec
+!LaptopBatteryTest.spec
 
 # Installer logs
 pip-log.txt
@@ -164,3 +165,6 @@ cython_debug/
 battery_test_env
 
 ~$rd_test_2.docx
+
+# Build credentials (contains Apple Developer secrets)
+build_credentials

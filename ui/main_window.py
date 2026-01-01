@@ -103,6 +103,12 @@ class MainWindow(QMainWindow):
         options_layout.addWidget(self.youtube_checkbox)
         options_layout.addStretch()
         
+        # Test Office button
+        test_office_button = QPushButton("Test Office")
+        test_office_button.setObjectName("checklistButton")
+        test_office_button.clicked.connect(self._test_office)
+        options_layout.addWidget(test_office_button)
+        
         # Test Checklist button
         checklist_button = QPushButton("Test Checklist")
         checklist_button.setObjectName("checklistButton")
@@ -198,6 +204,16 @@ class MainWindow(QMainWindow):
         """Show the pre-test checklist dialog."""
         dialog = ChecklistDialog(self)
         dialog.exec()
+    
+    def _test_office(self):
+        """Run the office test to verify Office files open correctly."""
+        from test_cases.office_test import run_office_test
+        self._append_log("📄 Running Office test...")
+        try:
+            run_office_test()
+            self._append_log("✅ Office test completed")
+        except Exception as e:
+            self._append_log(f"❌ Office test failed: {str(e)}")
     
     def _on_start(self):
         """Handle start button click."""

@@ -9,3 +9,8 @@ dependencies = [
     "psutil",
     "PyQt6",
 ]
+
+[dependency-groups]
+dev = [
+    "pyinstaller>=6.17.0",
+]

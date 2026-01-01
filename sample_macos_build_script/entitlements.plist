@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <!-- Required for hardened runtime -->
+    <key>com.apple.security.cs.allow-jit</key>
+    <true/>
+    
+    <!-- Required for Python and ML libraries -->
+    <key>com.apple.security.cs.allow-unsigned-executable-memory</key>
+    <true/>
+    
+    <!-- Required for network access (Gemini API calls) -->
+    <key>com.apple.security.network.client</key>
+    <true/>
+    
+    <!-- Required for file system access (video/audio files) -->
+    <key>com.apple.security.files.user-selected.read-write</key>
+    <true/>
+    
+    <!-- Required for user downloads folder -->
+    <key>com.apple.security.files.downloads.read-write</key>
+    <true/>
+    
+    <!-- Required for microphone access (audio export) -->
+    <key>com.apple.security.device.audio-input</key>
+    <true/>
+</dict>
+</plist>
