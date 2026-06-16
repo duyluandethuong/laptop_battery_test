@@ -345,8 +345,12 @@ def _optimize_windows():
     except Exception as e:
         results["battery_saver"] = ("warn", f"Could not set Battery Saver threshold: {e}")
 
-    # 6. Turn "lower brightness on low battery" off (no dimming -> 100%).
+    # 6. Turn "lower screen brightness when using energy saver" off (100% = no
+    #    dimming). On Windows 11 this toggle is backed by the *AC* index of the
+    #    ESBRIGHTNESS setting (it drops to 70 when on), so setting only the DC
+    #    index left the toggle stuck On. Set both AC and DC to 100.
     try:
+        _run(["powercfg", "/setacvalueindex", "SCHEME_CURRENT", "SUB_ENERGYSAVER", "ESBRIGHTNESS", "100"])
         _run(["powercfg", "/setdcvalueindex", "SCHEME_CURRENT", "SUB_ENERGYSAVER", "ESBRIGHTNESS", "100"])
         _run(["powercfg", "/setactive", "SCHEME_CURRENT"])
         results["low_batt_brightness"] = ("ok", "Disabled 'lower brightness on low battery'")
