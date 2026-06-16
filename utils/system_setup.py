@@ -252,6 +252,50 @@ def _windows_bluetooth():
     return ("warn", f"Bluetooth status: {out}")
 
 
+# PowerShell that mutes the default playback device via the Core Audio
+# IAudioEndpointVolume COM interface. The interface methods must be declared in
+# vtable order so SetMute lands on the right slot; the ones we don't call still
+# need to occupy their positions. Unlike SendKeys([char]173) this needs no
+# window focus and *sets* the mute state (rather than toggling it), so it works
+# reliably and never accidentally unmutes an already-muted machine.
+_WIN_MUTE_PS = r'''
+Add-Type -TypeDefinition @'
+using System.Runtime.InteropServices;
+[Guid("5CDF2C82-841E-4546-9722-0CF74078229A"), InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
+interface IAudioEndpointVolume {
+  int RegisterControlChangeNotify(System.IntPtr n);
+  int UnregisterControlChangeNotify(System.IntPtr n);
+  int GetChannelCount(out int c);
+  int SetMasterVolumeLevel(float a, System.Guid b);
+  int SetMasterVolumeLevelScalar(float a, System.Guid b);
+  int GetMasterVolumeLevel(out float a);
+  int GetMasterVolumeLevelScalar(out float a);
+  int SetChannelVolumeLevel(uint ch, float a, System.Guid b);
+  int SetChannelVolumeLevelScalar(uint ch, float a, System.Guid b);
+  int GetChannelVolumeLevel(uint ch, out float a);
+  int GetChannelVolumeLevelScalar(uint ch, out float a);
+  int SetMute([MarshalAs(UnmanagedType.Bool)] bool m, System.Guid b);
+  int GetMute(out bool m);
+}
+[Guid("D666063F-1587-4E43-81F1-B948E807363F"), InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
+interface IMMDevice { int Activate(ref System.Guid id, int clsCtx, System.IntPtr act, [MarshalAs(UnmanagedType.IUnknown)] out object o); }
+[Guid("A95664D2-9614-4F35-A746-DE8DB63617E6"), InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
+interface IMMDeviceEnumerator { int NotImpl(); int GetDefaultAudioEndpoint(int dataFlow, int role, out IMMDevice ep); }
+[ComImport, Guid("BCDE0395-E52F-467C-8E3D-C4579291692E")] class MMDeviceEnumeratorComObject { }
+public class Audio {
+  public static void Mute() {
+    var e = (IMMDeviceEnumerator)(new MMDeviceEnumeratorComObject());
+    IMMDevice dev; e.GetDefaultAudioEndpoint(0, 1, out dev);
+    System.Guid g = typeof(IAudioEndpointVolume).GUID;
+    object o; dev.Activate(ref g, 23, System.IntPtr.Zero, out o);
+    ((IAudioEndpointVolume)o).SetMute(true, System.Guid.Empty);
+  }
+}
+'@
+[Audio]::Mute()
+'''
+
+
 def _optimize_windows():
     results = {}
 
@@ -296,10 +340,9 @@ def _optimize_windows():
     except Exception as e:
         results["low_batt_brightness"] = ("warn", f"Could not disable low-battery dimming: {e}")
 
-    # 7. Volume 0% - tap the mute key.
+    # 7. Volume 0% - mute the default playback device via Core Audio.
     try:
-        cmd = "$w = New-Object -ComObject Wscript.Shell; $w.SendKeys([char]173)"
-        _run(["powershell", "-Command", cmd])
+        _run(["powershell", "-Command", _WIN_MUTE_PS])
         results["volume"] = ("ok", "Muted system volume")
     except Exception as e:
         results["volume"] = ("warn", f"Could not set volume: {e}")
