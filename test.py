@@ -8,6 +8,7 @@ import argparse
 from datetime import datetime
 
 from utils.battery_utils import get_battery_level
+from utils.system_setup import optimize_system
 from test_cases.office_test import run_office_test
 from test_cases.browser_test import run_browser_test
 from test_cases.youtube_test import run_youtube_test
@@ -36,6 +37,9 @@ def start_test(no_youtube='0'):
     platform_name = platform.system()
 
     print(f'Running on {os_name}, {platform_name}')
+
+    optimize_system()
+
     get_battery_level()
 
     while True:
