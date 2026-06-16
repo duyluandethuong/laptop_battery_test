@@ -299,10 +299,23 @@ public class Audio {
 def _optimize_windows():
     results = {}
 
-    # 1. Power mode -> Balanced plan (GUID 381b4222-...).
+    # 1. Power mode -> Balanced.
+    #    On modern Windows 11 the visible "Power mode" is an *overlay* (Best
+    #    power efficiency / Balanced / Best performance) layered on top of the
+    #    power *scheme*. `powercfg /setactive` only changes the scheme, so on a
+    #    machine that already has the Balanced scheme it does nothing visible and
+    #    the slider can stay stuck on "Best performance". Set both: the Balanced
+    #    scheme (covers classic / OEM custom plans) and the Balanced overlay.
     try:
         _run(["powercfg", "/setactive", "381b4222-f694-41f0-9685-ff5bb260df2e"])
-        results["power_mode"] = ("ok", "Set power plan to Balanced")
+        # The all-zero overlay GUID is the Balanced position of the Power mode
+        # slider. Unsupported on older Windows (no overlays) where the scheme is
+        # the power mode, so don't let it fail the whole step.
+        try:
+            _run(["powercfg", "/overlaysetactive", "00000000-0000-0000-0000-000000000000"])
+        except Exception:
+            pass
+        results["power_mode"] = ("ok", "Set power plan and power mode to Balanced")
     except Exception as e:
         results["power_mode"] = ("warn", f"Could not set Balanced plan: {e}")
 
