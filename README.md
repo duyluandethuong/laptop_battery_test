@@ -32,17 +32,24 @@ In the future, text input will be added to better resemble how a normal user wou
 # Before you run any test, check all boxes in this checklist
 
 Use this checklist and you can make sure all tests are consistent
-- [ ] Set laptop Power mode to "Balance" (on Mac, do not turn on High Performance Mode)
-- [ ] Set laptop's screen brightness to 75% (on Mac, you can ask Siri "Set screen brightness to 75% for an accurate setting). Leave all refresh rate at default config.
-- [ ] Turn off auto turn off screen on battery power
-- [ ] Connect your laptop to Wifi network, turn on Bluetooth
-- [ ] Leave battery saver mode on if your laptop have it, set battery saver on at 30% (30% is the default settings for Windows in recent updates)
-- [ ] Turn "lower screen brightness on low battery" off
-- [ ] Turn of any battery settings such as auto dim / lock screen when user is away... (on some new Windows laptops)
-- [ ] Turn the volume to 0%
-- [ ] Charge your laptop to 100% battery
+- [ ] **Check power mode:** Set laptop Power mode to "Balance" (on Mac, do not turn on High Performance Mode)
+- [ ] **Check screen brightness:** Set laptop's screen brightness to 75% (on Mac, you can ask Siri "Set screen brightness to 75% for an accurate setting). Leave all refresh rate at default config.
+- [ ] **Check screen timeout:** Turn off auto turn off screen on battery power
+- [ ] **Check network & Bluetooth:** Connect your laptop to Wifi network, turn on Bluetooth
+- [ ] **Check battery saver:** Leave battery saver mode on if your laptop have it, set battery saver on at 30% (30% is the default settings for Windows in recent updates)
+- [ ] **Check low-battery dimming:** Turn "lower screen brightness on low battery" off
+- [ ] **Check auto-dim / away settings:** Turn of any battery settings such as auto dim / lock screen when user is away... (on some new Windows laptops)
+- [ ] **Check volume:** Turn the volume to 0%
+- [ ] **Check charge level:** Charge your laptop to 100% battery
 
 # How to run
+
+## 1-click run
+
+- **macOS/Linux**: double click on `run.command`
+- **Windows**: double click on `run.bat`
+
+To stop the script: Press `Control + C` on the terminal
 
 ## Installation
 

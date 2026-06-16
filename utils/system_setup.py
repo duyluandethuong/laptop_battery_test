@@ -15,12 +15,69 @@ auto-tick the boxes it handled and leave the rest to the user.
 """
 import logging
 import platform
+import re
 import subprocess
 
 
 def _run(cmd):
     """Run a command, raising on non-zero exit. Output is captured/silenced."""
     subprocess.run(cmd, capture_output=True, check=True)
+
+
+# ANSI color codes for the status tags.
+_RESET = "\033[0m"
+_GREEN = "\033[92m"
+_YELLOW = "\033[93m"
+_RED = "\033[91m"
+
+# Map an action status to a fixed-width, color-coded tag.
+_TAGS = {
+    "ok": f"{_GREEN}[ OK ]{_RESET}",
+    "skip": f"{_YELLOW}[SKIP]{_RESET}",
+    "warn": f"{_RED}[FAIL]{_RESET}",
+}
+
+
+def _enable_ansi():
+    """Enable ANSI escape sequences on Windows consoles (no-op elsewhere)."""
+    if platform.system() != "Windows":
+        return
+    try:
+        import ctypes
+
+        kernel32 = ctypes.windll.kernel32
+        # STD_OUTPUT_HANDLE = -11, ENABLE_VIRTUAL_TERMINAL_PROCESSING = 0x0004
+        handle = kernel32.GetStdHandle(-11)
+        mode = ctypes.c_uint32()
+        if kernel32.GetConsoleMode(handle, ctypes.byref(mode)):
+            kernel32.SetConsoleMode(handle, mode.value | 0x0004)
+    except Exception:
+        pass
+
+
+# Short title shown before each action's message (mirrors the README checklist).
+TITLES = {
+    "power_mode": "Check power mode",
+    "brightness": "Check screen brightness",
+    "screen_off": "Check screen timeout",
+    "network": "Check network",
+    "bluetooth": "Check Bluetooth",
+    "battery_saver": "Check battery saver",
+    "low_batt_brightness": "Check low-battery dimming",
+    "volume": "Check volume",
+}
+
+
+def _check_network():
+    """Read-only: confirm we can reach the internet (we can't auto-join Wi-Fi)."""
+    import socket
+
+    try:
+        socket.setdefaulttimeout(3)
+        socket.create_connection(("8.8.8.8", 53)).close()
+        return ("ok", "Internet connection is active")
+    except Exception:
+        return ("warn", "No internet detected - connect to Wi-Fi before testing")
 
 
 # --------------------------------------------------------------------------- #
@@ -50,6 +107,44 @@ def _set_macos_brightness(level=0.75):
     return ds.DisplayServicesSetBrightness(main_display, ctypes.c_float(level)) == 0
 
 
+def _macos_bluetooth():
+    """Report Bluetooth state; enable it with blueutil if that tool is present.
+
+    Reads the controller state from `system_profiler` (the per-host plist key
+    `ControllerPowerState` is gone on recent macOS). The first "State:" line in
+    SPBluetoothDataType is the controller's power state.
+    """
+    import shutil
+
+    state = ""
+    try:
+        out = subprocess.run(
+            ["system_profiler", "SPBluetoothDataType"],
+            capture_output=True, text=True, check=True,
+        ).stdout
+        for line in out.splitlines():
+            stripped = line.strip()
+            if stripped.startswith("State:"):
+                state = stripped.split(":", 1)[1].strip().lower()
+                break
+    except Exception:
+        state = ""
+
+    if state == "on":
+        return ("ok", "Bluetooth is already on")
+
+    if shutil.which("blueutil"):
+        try:
+            _run(["blueutil", "--power", "1"])
+            return ("ok", "Turned Bluetooth on (blueutil)")
+        except Exception as e:
+            return ("warn", f"Could not enable Bluetooth: {e}")
+
+    if state == "off":
+        return ("warn", "Bluetooth is off - turn it on manually (or install blueutil)")
+    return ("skip", "Could not read Bluetooth state - verify manually")
+
+
 def _optimize_macos():
     results = {}
 
@@ -77,13 +172,17 @@ def _optimize_macos():
     except Exception as e:
         results["screen_off"] = ("warn", f"Could not start caffeinate: {e}")
 
-    # 4. Battery saver @ 30% - not configurable on macOS.
+    # 4. Network (read-only) and Bluetooth.
+    results["network"] = _check_network()
+    results["bluetooth"] = _macos_bluetooth()
+
+    # 5. Battery saver @ 30% - not configurable on macOS.
     results["battery_saver"] = ("skip", "Low Power threshold is not configurable on macOS")
 
-    # 5. Lower brightness on low battery - not scriptable on macOS.
+    # 6. Lower brightness on low battery - not scriptable on macOS.
     results["low_batt_brightness"] = ("skip", "Not scriptable on macOS - verify manually")
 
-    # 6. Volume 0%
+    # 7. Volume 0%
     try:
         _run(["osascript", "-e", "set volume output volume 0"])
         results["volume"] = ("ok", "Set volume to 0%")
@@ -112,6 +211,47 @@ def _set_windows_brightness(level=75):
         return True
 
 
+def _windows_bluetooth():
+    """Check Bluetooth via the WinRT Radio API and turn it on if it's off."""
+    ps_code = """
+    Add-Type -AssemblyName System.Runtime.WindowsRuntime
+    $asTaskGeneric = ([System.WindowsRuntimeSystemExtensions].GetMethods() | Where-Object { $_.Name -eq 'AsTask' -and $_.GetParameters().Count -eq 1 -and $_.GetParameters()[0].ParameterType.Name -eq 'IAsyncOperation`1' })[0]
+    Function Await($WinRtTask, $ResultType) {
+        $asTask = $asTaskGeneric.MakeGenericMethod($ResultType)
+        $netTask = $asTask.Invoke($null, @($WinRtTask))
+        $netTask.Wait(-1) | Out-Null
+        $netTask.Result
+    }
+    [Windows.Devices.Radios.Radio,Windows.System.Devices,ContentType=WindowsRuntime] | Out-Null
+    $radios = Await ([Windows.Devices.Radios.Radio]::GetRadiosAsync()) ([System.Collections.Generic.IReadOnlyList[Windows.Devices.Radios.Radio]])
+    $bluetooth = $radios | Where-Object { $_.Kind -eq 'Bluetooth' }
+    if ($bluetooth) {
+        if ($bluetooth.State -eq 'Off') {
+            Await ($bluetooth.SetStateAsync('On')) ([Windows.Devices.Radios.RadioAccessStatus]) | Out-Null
+            Write-Output "Enabled"
+        } else {
+            Write-Output "AlreadyOn"
+        }
+    } else {
+        Write-Output "NotFound"
+    }
+    """
+    try:
+        out = subprocess.run(
+            ["powershell", "-Command", ps_code], capture_output=True, text=True, check=True
+        ).stdout.strip()
+    except Exception as e:
+        return ("warn", f"Could not check/enable Bluetooth: {e}")
+
+    if "Enabled" in out:
+        return ("ok", "Bluetooth was off, turned it on")
+    if "AlreadyOn" in out:
+        return ("ok", "Bluetooth is already on")
+    if "NotFound" in out:
+        return ("warn", "No Bluetooth adapter detected")
+    return ("warn", f"Bluetooth status: {out}")
+
+
 def _optimize_windows():
     results = {}
 
@@ -136,7 +276,11 @@ def _optimize_windows():
     except Exception as e:
         results["screen_off"] = ("warn", f"Could not disable screen timeout: {e}")
 
-    # 4. Battery saver @ 30%.
+    # 4. Network (read-only) and Bluetooth.
+    results["network"] = _check_network()
+    results["bluetooth"] = _windows_bluetooth()
+
+    # 5. Battery saver @ 30%.
     try:
         _run(["powercfg", "/setdcvalueindex", "SCHEME_CURRENT", "SUB_ENERGYSAVER", "ESBATTTHRESHOLD", "30"])
         _run(["powercfg", "/setactive", "SCHEME_CURRENT"])
@@ -144,7 +288,7 @@ def _optimize_windows():
     except Exception as e:
         results["battery_saver"] = ("warn", f"Could not set Battery Saver threshold: {e}")
 
-    # 5. Turn "lower brightness on low battery" off (no dimming -> 100%).
+    # 6. Turn "lower brightness on low battery" off (no dimming -> 100%).
     try:
         _run(["powercfg", "/setdcvalueindex", "SCHEME_CURRENT", "SUB_ENERGYSAVER", "ESBRIGHTNESS", "100"])
         _run(["powercfg", "/setactive", "SCHEME_CURRENT"])
@@ -152,7 +296,7 @@ def _optimize_windows():
     except Exception as e:
         results["low_batt_brightness"] = ("warn", f"Could not disable low-battery dimming: {e}")
 
-    # 6. Volume 0% - tap the mute key.
+    # 7. Volume 0% - tap the mute key.
     try:
         cmd = "$w = New-Object -ComObject Wscript.Shell; $w.SendKeys([char]173)"
         _run(["powershell", "-Command", cmd])
@@ -178,25 +322,33 @@ def optimize_system(log=None):
     """
     def emit(msg):
         print(msg)
-        logging.info(msg)
+        # Log file and GUI callback get a plain version (no ANSI color codes).
+        plain = re.sub(r"\033\[[0-9;]*m", "", msg)
+        logging.info(plain)
         if log:
-            log(msg)
+            log(plain)
+
+    _enable_ansi()
 
     system = platform.system()
-    emit("🔧 One-click setup: applying checklist items for this machine...")
+    print()  # blank line before the checklist for readability
+    emit("One-click setup: applying checklist items for this machine...")
 
     if system == "Windows":
         results = _optimize_windows()
     elif system == "Darwin":
         results = _optimize_macos()
     else:
-        emit(f"⚠️ Unsupported OS '{system}' - please set everything manually.")
+        emit(f"{_TAGS['warn']} Unsupported OS '{system}' - please set everything manually.")
+        print()
         return {}
 
-    icons = {"ok": "✅", "skip": "⏭️", "warn": "⚠️"}
-    for status, message in results.values():
-        emit(f"{icons.get(status, '•')} {message}")
+    for key, (status, message) in results.items():
+        tag = _TAGS.get(status, f"[{status.upper()}]")
+        title = TITLES.get(key, key)
+        emit(f"{tag} {title}: {message}")
 
+    print()  # blank line after the checklist for readability
     return results
 
 
