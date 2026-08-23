@@ -4,7 +4,7 @@ import webbrowser
 import os
 import platform
 from utils.battery_utils import get_battery_level
-from utils import close_window
+from utils import close_window, sleep_with_mouse_activity
 
 def run_youtube_test():
 
@@ -27,7 +27,8 @@ def run_youtube_test():
         get_battery_level()
         webbrowser.open(url)
 
-        time.sleep(2 * 60 * 10)
+        # Keep the mouse moving every 5 minutes so no screen saver kicks in
+        sleep_with_mouse_activity(2 * 60 * 10, interval=5 * 60)
 
         get_battery_level()
 

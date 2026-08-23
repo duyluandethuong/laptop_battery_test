@@ -1,6 +1,7 @@
 import os
 import platform
 import subprocess
+import time
 import pyautogui
 
 def start_file(file_path:str):
@@ -47,3 +48,29 @@ def custom_scroll(times=1, direction="down"):
     while scroll_time <= times:
         pyautogui.scroll(scrolling_distance)
         scroll_time += 1
+
+def nudge_mouse():
+    """Move the mouse a little and back, so the OS does not see the machine as idle."""
+    screen_width, _ = pyautogui.size()
+    current_x, current_y = pyautogui.position()
+
+    # Nudge towards whichever side keeps the pointer on screen
+    offset = 50 if current_x + 50 < screen_width else -50
+
+    pyautogui.moveTo(current_x + offset, current_y, duration=0.5)
+    pyautogui.moveTo(current_x, current_y, duration=0.5)
+
+def sleep_with_mouse_activity(seconds, interval=5 * 60):
+    """Sleep for `seconds`, nudging the mouse every `interval` seconds.
+
+    Some laptops start a screen saver / dim the screen when there is no input,
+    which would make the battery test inaccurate, so the mouse has to keep moving
+    even while a video is playing on its own.
+    """
+    remaining = seconds
+
+    while remaining > 0:
+        chunk = min(interval, remaining)
+        time.sleep(chunk)
+        remaining -= chunk
+        nudge_mouse()
